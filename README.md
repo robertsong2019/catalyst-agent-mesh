@@ -122,60 +122,68 @@ class CreativeAgent:
 - [ ] API marketplace for agent services
 - [ ] Production deployment
 
+## 📚 Documentation
+
+| Doc | Description |
+|-----|-------------|
+| [Tutorial](docs/TUTORIAL.md) | 10-minute getting started guide |
+| [API Reference](docs/API.md) | Complete REST API documentation |
+| [Architecture](docs/ARCHITECTURE.md) | System design and internals |
+
+Examples: [`examples/basic_usage.py`](examples/basic_usage.py) · [`examples/pipeline_example.py`](examples/pipeline_example.py)
+
+---
+
 ## 🔧 Getting Started
 
 ### Prerequisites
 - Python 3.10+
-- Node.js 18+
+- Node.js 18+ (for frontend only)
 - Docker (optional)
+- Ollama or OpenAI API key (optional — mock provider works without LLM)
 
-### Installation
+### Quick Start
+
 ```bash
-# Clone the repository
 git clone https://github.com/robertsong2019/catalyst-agent-mesh.git
 cd catalyst-agent-mesh
-
-# Install backend dependencies
 pip install -r requirements.txt
 
-# Install frontend dependencies
-cd frontend
-npm install
+# Start with mock provider (no LLM needed)
+uvicorn src.main:app --reload
 
-# Start development servers
-# Backend (FastAPI)
-uvicorn main:app --reload
+# Or with Ollama
+MESH_LLM_PROVIDER=ollama uvicorn src.main:app --reload
 
-# Frontend (Next.js)
-npm run dev
+# Or with OpenAI
+OPENAI_API_KEY=sk-... MESH_LLM_PROVIDER=openai uvicorn src.main:app --reload
 ```
 
-### Basic Usage
+API docs available at `http://localhost:8000/docs`
+
+### Python Usage
+
 ```python
-from catalyst_mesh import CreativeAgent, AgentMesh
+import asyncio
+from src.mesh.agent_mesh import AgentMesh
+from src.agents.creative_agents import ResearchAgent, CreativeWriterAgent
 
-# Create a research agent
-researcher = CreativeAgent(
-    specialty="research",
-    capabilities=["web_search", "analysis", "synthesis"],
-    model_type="local"
-)
+async def main():
+    mesh = AgentMesh()
+    mesh.register_agent(ResearchAgent(model_type="mock"))
+    mesh.register_agent(CreativeWriterAgent(model_type="mock"))
 
-# Create a writing agent
-writer = CreativeAgent(
-    specialty="writing",
-    capabilities=["content_generation", "editing", "refinement"],
-    model_type="local"
-)
+    result = await mesh.execute_task({
+        "type": "content_creation",
+        "topic": "AI ethics",
+        "style": "professional",
+    })
+    print(result)
 
-# Execute collaborative workflow
-mesh = AgentMesh()
-mesh.register_agent(researcher)
-mesh.register_agent(writer)
-
-result = mesh.execute_workflow("content_creation", {"topic": "AI ethics"})
-print(result)
+asyncio.run(main())
 ```
+
+See the [Tutorial](docs/TUTORIAL.md) for the full walkthrough.
 
 ## 📈 Performance Metrics
 

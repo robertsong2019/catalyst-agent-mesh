@@ -201,6 +201,7 @@ class PipelineExecutor:
         
         async def execute_single_task(task: Dict[str, Any]) -> Dict[str, Any]:
             async with semaphore:
+                agent = None
                 try:
                     # Find the assigned agent
                     assigned_agent_id = task["assigned_agent_id"]
